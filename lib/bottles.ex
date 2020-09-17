@@ -1,76 +1,105 @@
+defmodule ABottleNumber do
+  defmacro __using__(_opts) do
+    quote do
+      defstruct [:number, :quantity, :pronoun, :container, :action]
+      @behaviour ABottleNumber
+    end
+  end
+
+  @callback action() :: String.t()
+  @callback container() :: String.t()
+  @callback quantity(number :: Integer.t()) :: String.t()
+end
+
 defmodule BottleNumber do
-  defstruct [:number, :quantity, :next_quantity, :pronoun, :container, :next_container, :action]
+  use ABottleNumber
+
+  def new(number), do: %__MODULE__{number: number}
+  def action, do: "Take one down and pass it around"
+  def container, do: "bottles"
+  def quantity(number), do: to_string(number)
+end
+
+defmodule BottleNumber0 do
+  use ABottleNumber
+
+  def new, do: %__MODULE__{number: 0}
+  def action, do: "Go to the store and buy some more"
+  def container, do: "bottles"
+  def quantity(_number), do: "no more"
+end
+
+defmodule BottleNumber1 do
+  use ABottleNumber
+
+  def new, do: %__MODULE__{number: 1}
+  def action, do: "Take it down and pass it around"
+  def container, do: "bottle"
+  def quantity(_number), do: "1"
+end
+
+defmodule BottleNumberBuilder do
+  def new(number) do
+    module = module_for(number)
+
+    number
+    |> add_quantity(module)
+    |> add_container(module)
+    |> add_action(module)
+  end
+
+  def add_quantity(%{number: number} = struct, module) do
+    put_in(struct.quantity, module.quantity(number))
+  end
+
+  def add_container(struct, module) do
+    put_in(struct.container, module.container)
+  end
+
+  def add_action(struct, module) do
+    put_in(struct.action, module.action)
+  end
+
+  defp module_for(struct), do: struct.__struct__
+end
+
+defmodule BottleNumberFetcher do
+  def new(0) do
+    BottleNumber0.new()
+    |> BottleNumberBuilder.new()
+  end
+
+  def new(1) do
+    BottleNumber1.new()
+    |> BottleNumberBuilder.new()
+  end
 
   def new(number) do
-    %__MODULE__{number: number}
-    |> add_quantity
-    |> add_next_quantity
-    |> add_pronoun
-    |> add_container
-    |> add_next_container
-    |> add_action
-  end
-
-  def add_quantity(%__MODULE__{number: number} = struct) do
-    put_in(struct.quantity, number |> quantity |> to_string)
-  end
-
-  def add_next_quantity(%__MODULE__{number: number} = struct) do
-    put_in(struct.next_quantity, number |> next_quantity)
-  end
-
-  def add_pronoun(%__MODULE__{number: number} = struct) do
-    put_in(struct.pronoun, number |> pronoun)
-  end
-
-  def add_container(%__MODULE__{number: number} = struct) do
-    put_in(struct.container, number |> container)
-  end
-
-  def add_next_container(%__MODULE__{number: number} = struct) do
-    put_in(struct.next_container, number |> next_container)
-  end
-
-  def add_action(%__MODULE__{number: number} = struct) do
-    put_in(struct.action, number |> action)
-  end
-
-  def action(0), do: "Go to the store and buy some more"
-  def action(number), do: "Take #{number |> pronoun} down and pass it around"
-
-  def next_verse(0), do: 99
-  def next_verse(verse_number), do: verse_number - 1
-
-  def container(1), do: "bottle"
-  def container(_number), do: "bottles"
-
-  def quantity(0), do: "no more"
-  def quantity(number), do: number |> to_string
-
-  def pronoun(1), do: "it"
-  def pronoun(_number), do: "one"
-
-  def next_quantity(number) do
     number
-    |> next_verse
-    |> quantity
+    |> BottleNumber.new()
+    |> BottleNumberBuilder.new()
   end
 
-  def next_container(number) do
-    number
-    |> next_verse
-    |> container
+  def next(%BottleNumber0{}), do: new(99)
+  def next(%{number: number}), do: new(number - 1)
+end
+
+defimpl String.Chars, for: [BottleNumber, BottleNumber0, BottleNumber1] do
+  def to_string(%{quantity: quantity, container: container}) do
+    "#{quantity} #{container}"
   end
 end
 
 defmodule Bottles do
   def verse(verse_number) do
-    bottle_number = BottleNumber.new(verse_number)
+    bottle_number = BottleNumberFetcher.new(verse_number)
 
-    "#{bottle_number.quantity |> String.capitalize()} #{bottle_number.container} of beer on the wall, " <>
-      "#{bottle_number.quantity} #{bottle_number.container} of beer.\n" <>
+    next_number = BottleNumberFetcher.next(bottle_number)
+
+    String.capitalize("#{bottle_number} of beer on the wall, ") <>
+      "#{bottle_number} of beer.\n" <>
       "#{bottle_number.action}, " <>
-      "#{bottle_number.next_quantity} #{bottle_number.next_container} of beer on the wall.\n"
+      "#{next_number} of beer on the wall.\n"
   end
 
   def verses(start_verse, end_verse) do
