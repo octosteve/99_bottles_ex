@@ -20,6 +20,7 @@ defmodule BottlesTest do
 
     assert expected == Bottles.verse(3)
   end
+
   test "test_verse_7" do
     expected =
       "7 bottles of beer on the wall, " <>
@@ -39,7 +40,6 @@ defmodule BottlesTest do
 
     assert expected == Bottles.verse(6)
   end
-
 
   test "test_verse_2" do
     expected =
