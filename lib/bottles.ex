@@ -7,33 +7,21 @@ defmodule BottleNumber do
     end
   end
 
-  def new(0) do
-    compose([&base_bottle_number/1, &bottle_0/1]).(0)
-  end
+  def new(bottle_number) do
+    struct = build(bottle_number)
 
-  def new(1) do
-    compose([&base_bottle_number/1, &bottle_1/1]).(1)
-  end
-
-  def new(6) do
-    compose([&base_bottle_number/1, &bottle_6/1]).(6)
-  end
-
-  def new(bottle_number), do: compose([&base_bottle_number/1]).(bottle_number)
-  def successor(%__MODULE__{successor: successor}), do: new(successor)
-
-  def compose(bottle_builders) do
-    fn number ->
-      bottle_builders
-      |> Enum.reduce(__struct__(number: number), fn builder, struct ->
+    try do
+      apply(__MODULE__, String.to_atom("bottle_#{bottle_number}"), [struct])
+    rescue
+      UndefinedFunctionError ->
         struct
-        |> builder.()
-      end)
     end
   end
 
-  def base_bottle_number(%__MODULE__{number: number} = struct) do
-    struct
+  def successor(%__MODULE__{successor: successor}), do: new(successor)
+
+  def build(number) do
+    __struct__(number: number)
     |> Map.put(:quantity, number |> to_string)
     |> Map.put(:container, "bottles")
     |> Map.put(:successor, number - 1)
