@@ -6,18 +6,11 @@ defmodule Bottles do
       "99 bottles of beer on the wall.\n"
   end
 
-  def verse(1) do
-    "1 bottle of beer on the wall, " <>
-      "1 bottle of beer.\n" <>
-      "Take it down and pass it around, " <>
-      "no more bottles of beer on the wall.\n"
-  end
-
   def verse(verse_number) do
     "#{verse_number} #{container(verse_number)} of beer on the wall, " <>
-      "#{verse_number} bottles of beer.\n" <>
-      "Take one down and pass it around, " <>
-      "#{verse_number - 1} #{container(verse_number - 1)} of beer on the wall.\n"
+      "#{verse_number} #{container(verse_number)} of beer.\n" <>
+      "Take #{pronoun(verse_number)} down and pass it around, " <>
+      "#{quantity(verse_number - 1)} #{container(verse_number - 1)} of beer on the wall.\n"
   end
 
   def verses(start_verse, end_verse) do
@@ -36,5 +29,21 @@ defmodule Bottles do
 
   defp container(_number) do
     "bottles"
+  end
+
+  defp quantity(0) do
+    "no more"
+  end
+
+  defp quantity(number) do
+    number
+  end
+
+  defp pronoun(1) do
+    "it"
+  end
+
+  defp pronoun(_) do
+    "one"
   end
 end
