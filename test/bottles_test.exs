@@ -11,7 +11,6 @@ defmodule BottlesTest do
     assert expected == Bottles.verse(99)
   end
 
-  @tag :skip
   test "test_another_verse" do
     expected =
       "3 bottles of beer on the wall, " <>
@@ -22,7 +21,6 @@ defmodule BottlesTest do
     assert expected == Bottles.verse(3)
   end
 
-  @tag :skip
   test "test_verse_2" do
     expected =
       "2 bottles of beer on the wall, " <>
@@ -33,7 +31,6 @@ defmodule BottlesTest do
     assert expected == Bottles.verse(2)
   end
 
-  @tag :skip
   test "test_verse_1" do
     expected =
       "1 bottle of beer on the wall, " <>
@@ -44,7 +41,6 @@ defmodule BottlesTest do
     assert expected == Bottles.verse(1)
   end
 
-  @tag :skip
   test "test_verse_0" do
     expected =
       "No more bottles of beer on the wall, " <>
@@ -55,7 +51,6 @@ defmodule BottlesTest do
     assert expected == Bottles.verse(0)
   end
 
-  @tag :skip
   test "test_a_couple_verses" do
     expected =
       "99 bottles of beer on the wall, " <>
@@ -71,7 +66,6 @@ defmodule BottlesTest do
     assert expected == Bottles.verses(99, 98)
   end
 
-  @tag :skip
   test "test_a_few_verses" do
     expected =
       "2 bottles of beer on the wall, " <>
@@ -92,7 +86,6 @@ defmodule BottlesTest do
     assert expected == Bottles.verses(2, 0)
   end
 
-  @tag :skip
   test "test_the_whole_song" do
     expected = ~s"""
     99 bottles of beer on the wall, 99 bottles of beer.
