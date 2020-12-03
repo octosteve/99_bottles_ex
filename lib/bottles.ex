@@ -1,16 +1,11 @@
 defmodule Bottles do
-  def verse(0) do
-    "No more bottles of beer on the wall, " <>
-      "no more bottles of beer.\n" <>
-      "Go to the store and buy some more, " <>
-      "99 bottles of beer on the wall.\n"
-  end
-
   def verse(verse_number) do
-    "#{verse_number} #{container(verse_number)} of beer on the wall, " <>
-      "#{verse_number} #{container(verse_number)} of beer.\n" <>
-      "Take #{pronoun(verse_number)} down and pass it around, " <>
-      "#{quantity(verse_number - 1)} #{container(verse_number - 1)} of beer on the wall.\n"
+    String.capitalize(
+      "#{quantity(verse_number)} #{container(verse_number)} of beer on the wall, "
+    ) <>
+      "#{quantity(verse_number)} #{container(verse_number)} of beer.\n" <>
+      action(verse_number) <>
+      "#{quantity(successor(verse_number))} #{container(successor(verse_number))} of beer on the wall.\n"
   end
 
   def verses(start_verse, end_verse) do
@@ -45,5 +40,21 @@ defmodule Bottles do
 
   defp pronoun(_) do
     "one"
+  end
+
+  defp action(0) do
+    "Go to the store and buy some more, "
+  end
+
+  defp action(verse_number) do
+    "Take #{pronoun(verse_number)} down and pass it around, "
+  end
+
+  defp successor(0) do
+    99
+  end
+
+  defp successor(verse_number) do
+    verse_number - 1
   end
 end
