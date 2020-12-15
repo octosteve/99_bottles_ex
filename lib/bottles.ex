@@ -8,14 +8,14 @@ defmodule BottleNumber do
   end
 
   def new(number) do
-    struct!(__MODULE__, number: number)
-    |> apply_defaults
-    |> apply_overrides
+    __struct__(number: number)
+    |> set_defaults
+    |> merge_overrides
   end
 
   def successor(%__MODULE__{successor: successor}), do: new(successor)
 
-  def apply_defaults(%__MODULE__{number: number} = struct) do
+  def set_defaults(%__MODULE__{number: number} = struct) do
     %{
       struct
       | quantity: to_string(number),
@@ -25,19 +25,19 @@ defmodule BottleNumber do
     }
   end
 
-  def apply_overrides(%__MODULE__{number: 0} = struct) do
+  def merge_overrides(%__MODULE__{number: 0} = struct) do
     %{struct | quantity: "no more", successor: 99, action: "Go to the store and buy some more"}
   end
 
-  def apply_overrides(%__MODULE__{number: 1} = struct) do
+  def merge_overrides(%__MODULE__{number: 1} = struct) do
     %{struct | container: "bottle", action: "Take it down and pass it around"}
   end
 
-  def apply_overrides(%__MODULE__{number: 6} = struct) do
+  def merge_overrides(%__MODULE__{number: 6} = struct) do
     %{struct | quantity: "1", container: "six-pack"}
   end
 
-  def apply_overrides(struct), do: struct
+  def merge_overrides(struct), do: struct
 end
 
 defmodule Bottles do
