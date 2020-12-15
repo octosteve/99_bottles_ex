@@ -1,5 +1,5 @@
 defmodule BottleNumber do
-  defstruct ~w(quantity container successor action number)a
+  defstruct ~w(quantity container next_bottle action number)a
 
   defimpl String.Chars, for: __MODULE__ do
     def to_string(%{quantity: quantity, container: container}) do
@@ -13,20 +13,20 @@ defmodule BottleNumber do
     |> merge_overrides
   end
 
-  def successor(%__MODULE__{successor: successor}), do: new(successor)
+  def next_bottle(%__MODULE__{next_bottle: next_bottle}), do: new(next_bottle)
 
   def set_defaults(%__MODULE__{number: number} = struct) do
     %{
       struct
       | quantity: to_string(number),
         container: "bottles",
-        successor: number - 1,
+        next_bottle: number - 1,
         action: "Take one down and pass it around"
     }
   end
 
   def merge_overrides(%__MODULE__{number: 0} = struct) do
-    %{struct | quantity: "no more", successor: 99, action: "Go to the store and buy some more"}
+    %{struct | quantity: "no more", next_bottle: 99, action: "Go to the store and buy some more"}
   end
 
   def merge_overrides(%__MODULE__{number: 1} = struct) do
@@ -42,20 +42,20 @@ end
 
 defmodule Bottles do
   defmodule Bottles.Verse do
-    defstruct ~w(verse_number current_bottle next_bottle adapter)a
+    defstruct ~w(verse_number current_bottle next_bottle template)a
 
-    def new(verse_number, adapter) do
-      struct!(__MODULE__, verse_number: verse_number, adapter: adapter)
+    def new(verse_number) do
+      struct!(__MODULE__, verse_number: verse_number, template: BottleNumber)
       |> load_current_bottle
       |> load_next_bottle
     end
 
-    def load_current_bottle(%__MODULE__{verse_number: verse_number, adapter: adapter} = struct) do
-      %{struct | current_bottle: adapter.new(verse_number)}
+    def load_current_bottle(%__MODULE__{verse_number: verse_number, template: template} = struct) do
+      %{struct | current_bottle: template.new(verse_number)}
     end
 
-    def load_next_bottle(%__MODULE__{current_bottle: current_bottle, adapter: adapter} = struct) do
-      %{struct | next_bottle: adapter.successor(current_bottle)}
+    def load_next_bottle(%__MODULE__{current_bottle: current_bottle, template: template} = struct) do
+      %{struct | next_bottle: template.next_bottle(current_bottle)}
     end
 
     def to_string(%__MODULE__{current_bottle: current_bottle, next_bottle: next_bottle}) do
@@ -66,9 +66,9 @@ defmodule Bottles do
     end
   end
 
-  def verse(number, adapter \\ BottleNumber) do
+  def verse(number) do
     number
-    |> Bottles.Verse.new(adapter)
+    |> Bottles.Verse.new()
     |> Bottles.Verse.to_string()
   end
 
